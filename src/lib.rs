@@ -137,7 +137,7 @@ impl Display for Pascals {
 
 #[derive(Debug)]
 pub enum UvIndex {
-    None(u8),
+    None,
     Low(u8),
     Moderate(u8),
     High(u8),
@@ -149,7 +149,7 @@ impl From<u8> for UvIndex {
     fn from(value: u8) -> Self {
         use self::UvIndex::*;
         match value {
-            0 => None(value),
+            0 => None,
             1..=2 => Low(value),
             3..=5 => Moderate(value),
             6..=7 => High(value),
