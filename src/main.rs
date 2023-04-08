@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use clap::Parser;
-use metoffice::ApiKey;
+use rjw_metoffice::ApiKey;
 
 /// Fetches hourly data from the Met Office DataHub API.
 ///
@@ -45,8 +45,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         id: key_id,
         secret: key_secret,
     };
-    let forecast_data = metoffice::fetch_hourly_forecasts(&key, latitude, longitude)?;
 
+    let forecast_data = rjw_metoffice::fetch_hourly_forecasts(&key, latitude, longitude)?;
     for forecast in forecast_data.time_series {
         println!(
             "{:24}{:20}{:>7.1}",
