@@ -6,23 +6,29 @@ use std::io::Read;
 use chrono::{DateTime, TimeZone, Utc};
 use serde::{Deserialize, Deserializer};
 
-pub fn site_forecast_from_reader(rdr: impl Read) -> Result<SiteForecast, Box<dyn Error>> {
-    let mut parsed: Response = serde_json::from_reader(rdr)?;
+pub(crate) fn site_forecast_from_reader(rdr: impl Read) -> Result<SiteForecast, Box<dyn Error>> {
+    let mut parsed: ApiResponse = serde_json::from_reader(rdr)?;
     let feature = parsed.features.remove(0);
     Ok(feature.into())
 }
 
+/// Forecast data for a particular weather station site.
 #[derive(Debug)]
 pub struct SiteForecast {
+    /// Name of the weather station.
     pub name: String,
+    /// Position of the weather station.
     pub coordinates: Coordinates,
+    /// When the forecast model was run.
     pub forecast_made_at: DateTime<Utc>,
+    /// Available hourly forecasts for the site.
     pub time_series: Vec<HourlyForecast>,
 }
 
-impl From<Feature> for SiteForecast {
-    fn from(value: Feature) -> Self {
-        let Feature {
+impl From<ApiFeature> for SiteForecast {
+    /// Extracts relevant site forecast data from an API Feature object.
+    fn from(value: ApiFeature) -> Self {
+        let ApiFeature {
             geometry,
             properties,
         } = value;
@@ -37,18 +43,18 @@ impl From<Feature> for SiteForecast {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Response {
-    features: Vec<Feature>,
+pub struct ApiResponse {
+    features: Vec<ApiFeature>,
 }
 
 #[derive(Debug, Deserialize)]
-struct Feature {
-    geometry: Geometry,
-    properties: Properties,
+struct ApiFeature {
+    geometry: FeatureGeometry,
+    properties: FeatureProperties,
 }
 
 #[derive(Debug, Deserialize)]
-struct Geometry {
+struct FeatureGeometry {
     coordinates: Coordinates,
 }
 
@@ -63,14 +69,14 @@ pub struct Coordinates {
 }
 
 #[derive(Debug, Deserialize)]
-struct Location {
+struct FeatureLocation {
     name: String,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct Properties {
-    location: Location,
+struct FeatureProperties {
+    location: FeatureLocation,
     request_point_distance: Metres,
     #[serde(deserialize_with = "deserialize_datetime_without_seconds")]
     model_run_date: DateTime<Utc>, // ISO date
@@ -117,6 +123,13 @@ impl Display for MetresPerSecond {
 pub struct Celsius(pub f32);
 
 impl Display for Celsius {
+    /// Formats the value with the given formatter.
+    ///
+    /// The precision and any `+` sign specifier are used to format the
+    /// floating-point value, while the width and alignment are applied
+    /// to the formatted "x.y°C" string.
+    ///
+    /// Other format specifiers are currently ignored.
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let value = self.0;
         let precision = f.precision().unwrap_or(0);
@@ -188,6 +201,7 @@ impl<'de> Deserialize<'de> for UvIndex {
     }
 }
 
+/// Forecast data for a given site and time.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct HourlyForecast {
@@ -231,12 +245,19 @@ pub struct HourlyForecast {
     pub prob_of_precipitation: Percentage,
 }
 
+/// Discriminator for weather conditions that can occur during the day or night.
 #[derive(Debug)]
 pub enum DayOrNight {
     Night,
     Day,
 }
 
+/// The prevailing conditions for a forecast.
+///
+/// This is the "significant weather code" as the Met Office refers to it.
+/// In this representation conditions that differ only by taking place at
+/// night or during the day are combined and carry a `DayOrNight` enum
+/// variant to differentiate, should that be necessary.
 #[derive(Debug)]
 pub enum WeatherCode {
     ClearNight,
@@ -297,6 +318,11 @@ impl Display for WeatherCode {
 }
 
 impl From<u8> for WeatherCode {
+    /// Convert from the "significant weather code" number.
+    ///
+    /// Note that (presently) invalid codes, 31 and above, are accepted
+    /// but wrapped in the `NotUsed` variant (which otherwise is only
+    /// used for a code of 4 by the Met Office).
     fn from(value: u8) -> Self {
         use self::DayOrNight::*;
         use self::WeatherCode::*;

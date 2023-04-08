@@ -2,7 +2,8 @@ mod parse;
 
 use std::error::Error;
 
-pub use parse::{site_forecast_from_reader, Coordinates, HourlyForecast, SiteForecast};
+use parse::site_forecast_from_reader;
+pub use parse::{Coordinates, HourlyForecast, SiteForecast};
 
 pub struct ApiKey {
     /// DataHub API key ID.
