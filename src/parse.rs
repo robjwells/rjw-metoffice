@@ -1,5 +1,7 @@
 #![allow(dead_code)]
-use std::{error::Error, fmt::Display, io::Read};
+use std::error::Error;
+use std::fmt::{Alignment, Display};
+use std::io::Read;
 
 use chrono::{DateTime, TimeZone, Utc};
 use serde::{Deserialize, Deserializer};
@@ -116,7 +118,21 @@ pub struct Celsius(pub f32);
 
 impl Display for Celsius {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:.1}°C", self.0)
+        let value = self.0;
+        let precision = f.precision().unwrap_or(0);
+
+        let formatted_value = if f.sign_plus() {
+            format!("{value:+.precision$}°C")
+        } else {
+            format!("{value:.precision$}°C")
+        };
+
+        let width = f.width().unwrap_or(0);
+        match f.align().unwrap_or(Alignment::Left) {
+            Alignment::Left => write!(f, "{:<width$}", formatted_value),
+            Alignment::Right => write!(f, "{:>width$}", formatted_value),
+            Alignment::Center => write!(f, "{:^width$}", formatted_value),
+        }
     }
 }
 
@@ -276,7 +292,7 @@ impl Display for WeatherCode {
             ThunderShower(_) => "Thundery showers",
             Thunder => "Thundery",
         };
-        write!(f, "{description}")
+        description.fmt(f)
     }
 }
 

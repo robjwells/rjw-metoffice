@@ -49,8 +49,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     for forecast in forecast_data.time_series {
         println!(
-            "{}\t{}, {}",
-            forecast.time.format("%-l%p %a %-d"),
+            "{:24}{:20}{:>7.1}",
+            forecast.time.format("%F %R"),
             forecast.significant_weather_code,
             forecast.screen_temperature,
         );
