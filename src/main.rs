@@ -3,14 +3,26 @@ use std::error::Error;
 use clap::Parser;
 use metoffice::ApiKey;
 
-#[derive(Parser)]
+/// Fetches hourly data from the Met Office DataHub API.
+///
+/// The DataHub API will choose the weather station closest to the given
+/// latitude and longitude.
+///
+/// It is *highly recommended* to pass your API key ID and secret via
+/// the MET_OFFICE_DATAHUB_KEY_ID and MET_OFFICE_DATAHUB_KEY_SECRET
+/// environment variables rather than the command-line arguments.
+#[derive(Debug, Parser)]
 struct Args {
     /// DataHub key ID.
-    #[arg(long)]
+    ///
+    /// Prefer to pass this as an environment variable.
+    #[arg(long, env = "MET_OFFICE_DATAHUB_KEY_ID")]
     key_id: String,
 
     /// DataHub key secret.
-    #[arg(long)]
+    ///
+    /// Prefer to pass this as an environment variable.
+    #[arg(long, env = "MET_OFFICE_DATAHUB_KEY_SECRET")]
     key_secret: String,
 
     /// Location latitude in decimal degrees.
