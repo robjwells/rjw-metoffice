@@ -1,7 +1,10 @@
 [package]
 name = "rjw-metoffice"
 version = "0.1.0"
+authors = ["Rob Wells <rob@robjwells.com>"]
 edition = "2021"
+repository = "https://github.com/robjwells/rjw-metoffice"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
