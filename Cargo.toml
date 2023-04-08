@@ -3,6 +3,7 @@ name = "rjw-metoffice"
 version = "0.1.0"
 authors = ["Rob Wells <rob@robjwells.com>"]
 edition = "2021"
+description = "Rust bindings to the Met Office DataHub site-specific API"
 repository = "https://github.com/robjwells/rjw-metoffice"
 license = "MIT"
 
