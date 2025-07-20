@@ -1,6 +1,6 @@
 [package]
 name = "rjw-metoffice"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Rob Wells <rob@robjwells.com>"]
 edition = "2021"
 description = "Rust bindings to the Met Office DataHub site-specific API"
@@ -12,6 +12,5 @@ license = "MIT"
 [dependencies]
 chrono = { version = "0.4.24", features = ["serde"] }
 clap = { version = "4.2.1", features = ["derive", "env"] }
-reqwest = { version = "0.11.16", features = ["blocking"] }
 serde = { version = "1.0.159", features = ["derive"] }
 serde_json = "1.0.95"
