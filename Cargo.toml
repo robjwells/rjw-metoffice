@@ -1,16 +1,12 @@
 [package]
 name = "rjw-metoffice"
-version = "0.1.1"
-authors = ["Rob Wells <rob@robjwells.com>"]
-edition = "2021"
-description = "Rust bindings to the Met Office DataHub site-specific API"
+version = "0.2.0"
+edition = "2024"
+description = "Rust bindings to the Met Office Global Spot site-specific weather API"
 repository = "https://github.com/robjwells/rjw-metoffice"
-license = "MIT"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "MIT or Apache-2.0"
 
 [dependencies]
-chrono = { version = "0.4.24", features = ["serde"] }
-clap = { version = "4.2.1", features = ["derive", "env"] }
-serde = { version = "1.0.159", features = ["derive"] }
-serde_json = "1.0.95"
+jiff = { version = "0.2.15" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

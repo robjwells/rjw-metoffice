@@ -1,21 +1,46 @@
-mod parse;
+pub use error::Error;
+use serde::Deserialize;
 
-use std::error::Error;
+mod error {
+    #[derive(Debug)]
+    pub enum Error {
+        Serde(serde_json::Error),
+    }
 
-// use parse::site_forecast_from_reader;
-pub use parse::{Coordinates, HourlyForecast, SiteForecast};
+    impl std::fmt::Display for Error {
+        fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            todo!()
+        }
+    }
+    impl core::error::Error for Error {}
 
-pub struct ApiKey {
-    /// DataHub API key ID.
-    pub id: String,
-    /// DataHub API key secret.
-    pub secret: String,
+    impl From<serde_json::Error> for Error {
+        fn from(value: serde_json::Error) -> Self {
+            Self::Serde(value)
+        }
+    }
 }
 
-pub fn fetch_hourly_forecasts(
-    _key: &ApiKey,
-    _latitude: f64,
-    _longitude: f64,
-) -> Result<SiteForecast, Box<dyn Error>> {
-    Err("The service this crate relied on is no longer provided.".into())
+pub struct Forecast;
+
+impl std::str::FromStr for Forecast {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        parse(s)
+    }
 }
+
+impl From<RawForecast> for Forecast {
+    fn from(_value: RawForecast) -> Self {
+        Forecast
+    }
+}
+
+fn parse(s: &str) -> Result<Forecast, Error> {
+    let rf: RawForecast = serde_json::from_str(s)?;
+    Ok(Forecast::from(rf))
+}
+
+#[derive(Debug, Deserialize)]
+struct RawForecast {}
