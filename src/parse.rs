@@ -14,7 +14,9 @@ pub struct Forecast {
     pub coordinates: Coordinates,
     /// Weather station distance from the requested location.
     pub request_point_distance: Metres,
+    /// Time at which the weather model was run.
     pub predictions_made_at: jiff::Zoned,
+    /// Hourly forecast predictions.
     pub predictions: Vec<HourlyForecast>,
 }
 
@@ -22,7 +24,8 @@ impl std::str::FromStr for Forecast {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        parse(s)
+        let rf: RawForecast = serde_json::from_str(s)?;
+        Forecast::try_from(rf)
     }
 }
 
@@ -45,67 +48,41 @@ impl TryFrom<RawForecast> for Forecast {
     }
 }
 
-/// Forecast temperature values.
 #[derive(Debug)]
-#[allow(unused)]
-pub struct TemperatureForecast {
+pub struct HourlyForecast {
+    /// Time at which this forecast is valid.
+    pub time: jiff::Zoned,
+    /// The most significant weather conditions at this time, taking into account both
+    /// instantaneous and preceding conditions.
+    pub conditions: Conditions,
     /// Temperature at screen level.
     ///
     /// Stevenson screen height is approximately 1.5m above ground level.
-    screen: Celsius,
-    /// The temperature it feels like, taking into account humidity and wind chill but
-    /// not radiation.
-    feels_like: Celsius,
-    /// Dew point temperature at screen level.
-    ///
-    /// Stevenson screen height is approximately 1.5m above ground level.
-    screen_dew_point: Celsius,
+    pub screen_temperature: Celsius,
     /// Maximum air temperature at screen level.
     ///
     /// Appears to be missing after 48 hours.
-    screen_max: Option<Celsius>,
+    pub screen_maximum_temperature: Option<Celsius>,
     /// Minimum air temperature at screen level.
     ///
     /// Appears to be missing after 48 hours.
-    screen_min: Option<Celsius>,
-}
-
-/// Forecast wind values.
-#[derive(Debug)]
-#[allow(unused)]
-pub struct WindForecast {
-    /// Surface wind speed in metres per second.
+    pub screen_mininium_temperature: Option<Celsius>,
+    /// The temperature it feels like, taking into account humidity and wind chill but
+    /// not radiation.
+    pub feels_like_temperature: Celsius,
+    /// Dew point temperature at screen level.
     ///
-    /// Mean wind speed is equivalent to the mean speed observed over the 10 minutes preceding the
-    /// validity time. Measured at 10 metres above ground, this is considered surface wind speed.
-    speed: MetresPerSecond,
-    /// Direction from which the wind is blowing in degrees.
-    ///
-    /// Mean wind direction is equivalent to the mean direction observed over the 10 minutes
-    /// preceding the validity time. Measured at 10 metres above ground, this is considered surface
-    /// wind direction.
-    direction: Degrees,
-    /// Maximum 3-second mean wind speed observed over the 10 minutes preciding the validity time.
-    gust_speed: MetresPerSecond,
-    /// Maximum 3-second mean wind speed observed over the hour preciding the validity time.
-    ///
-    /// Appears to be missing after 48 hours.
-    max_hourly_gust_speed: Option<MetresPerSecond>,
-}
-
-/// Forecast precipitation values.
-#[derive(Debug)]
-#[allow(unused)]
-pub struct PrecipitationForecast {
+    /// Stevenson screen height is approximately 1.5m above ground level.
+    pub screen_dew_point_temperature: Celsius,
     /// Probability of precipitation over the hour centered at the validity time.
-    probability: Percentage,
+    pub precipitation_probability: Percentage,
     /// Rate at which liquid water is being deposited on the surface, in mm per hour.
-    rate: MillimetresPerHour,
+    pub precipitation_rate: MillimetresPerHour,
     /// Implied depth of the layer of liquid water which has been deposited on the
     /// surface since the previous hour.
     ///
     /// Appears to be missing after 48 hours.
-    total_precip_amount: Option<Millimetres>,
+    pub precipitation_total: Option<Millimetres>,
     /// Amount of snow that has fallen out of the sky in the last hour.
     ///
     /// This does not reflect snow lying on the ground. Falling snow may not settle at all and may
@@ -114,32 +91,33 @@ pub struct PrecipitationForecast {
     /// square metre.
     ///
     /// Appears to be missing after 48 hours.
-    total_snow_amount: Option<Millimetres>,
-}
-
-#[derive(Debug)]
-#[allow(unused)]
-pub struct HourlyForecast {
-    /// Time at which this forecast is valid.
-    time: jiff::Zoned,
-    /// The most significant weather conditions at this time, taking into account both
-    /// instantaneous and preceding conditions.
-    conditions: Conditions,
-    /// Temperature predictions.
-    temperature: TemperatureForecast,
-    /// Precipitation predictions (rain, snow, etc).
-    precipitation: PrecipitationForecast,
-    /// Wind speed and direction predictions.
-    wind: WindForecast,
+    pub snow_total: Option<Millimetres>,
+    /// Surface wind speed in metres per second.
+    ///
+    /// Mean wind speed is equivalent to the mean speed observed over the 10 minutes preceding the
+    /// validity time. Measured at 10 metres above ground, this is considered surface wind speed.
+    pub wind_speed: MetresPerSecond,
+    /// Direction from which the wind is blowing in degrees.
+    ///
+    /// Mean wind direction is equivalent to the mean direction observed over the 10 minutes
+    /// preceding the validity time. Measured at 10 metres above ground, this is considered surface
+    /// wind direction.
+    pub wind_direction: Degrees,
+    /// Maximum 3-second mean wind speed observed over the 10 minutes preciding the validity time.
+    pub gust_speed: MetresPerSecond,
+    /// Maximum 3-second mean wind speed observed over the hour preciding the validity time.
+    ///
+    /// Appears to be missing after 48 hours.
+    pub gust_hourly_maximum_speed: Option<MetresPerSecond>,
     /// Distance in metres at which a known object can be seen horizontally from screen level (1.5m.)
-    visibility: Metres,
+    pub visibility: Metres,
     /// Percent relative humidity at screen level (1.5m).
-    relative_humidity: Percentage,
+    pub relative_humidity: Percentage,
     /// Air pressure at mean sea level in Pascals.
-    pressure: Pascals,
+    pub pressure: Pascals,
     /// Maxmium UV value over the hour preceding the validity time. Usually a value 0 to 13 but
     /// higher values are possible in extreme situations.
-    uv_index: UvIndex,
+    pub uv_index: UvIndex,
 }
 
 impl TryFrom<RawHourlyForecast> for HourlyForecast {
@@ -149,36 +127,25 @@ impl TryFrom<RawHourlyForecast> for HourlyForecast {
         Ok(Self {
             time: rf.time,
             conditions: rf.significant_weather_code.try_into()?,
-            temperature: TemperatureForecast {
-                screen: Celsius(rf.screen_temperature),
-                feels_like: Celsius(rf.feels_like_temperature),
-                screen_dew_point: Celsius(rf.screen_dew_point_temperature),
-                screen_max: rf.max_screen_air_temp.map(Celsius),
-                screen_min: rf.min_screen_air_temp.map(Celsius),
-            },
-            precipitation: PrecipitationForecast {
-                probability: Percentage(rf.prob_of_precipitation),
-                rate: MillimetresPerHour(rf.precipitation_rate),
-                total_precip_amount: rf.total_precip_amount.map(Millimetres),
-                total_snow_amount: rf.total_snow_amount.map(Millimetres),
-            },
-            wind: WindForecast {
-                speed: MetresPerSecond(rf.wind_speed_10m),
-                direction: Degrees(rf.wind_direction_from_10m),
-                gust_speed: MetresPerSecond(rf.wind_gust_speed_10m),
-                max_hourly_gust_speed: rf.max_10m_wind_gust.map(MetresPerSecond),
-            },
+            screen_temperature: Celsius(rf.screen_temperature),
+            feels_like_temperature: Celsius(rf.feels_like_temperature),
+            screen_dew_point_temperature: Celsius(rf.screen_dew_point_temperature),
+            screen_maximum_temperature: rf.max_screen_air_temp.map(Celsius),
+            screen_mininium_temperature: rf.min_screen_air_temp.map(Celsius),
+            precipitation_probability: Percentage(rf.prob_of_precipitation),
+            precipitation_rate: MillimetresPerHour(rf.precipitation_rate),
+            precipitation_total: rf.total_precip_amount.map(Millimetres),
+            snow_total: rf.total_snow_amount.map(Millimetres),
+            wind_speed: MetresPerSecond(rf.wind_speed_10m),
+            wind_direction: Degrees(rf.wind_direction_from_10m),
+            gust_speed: MetresPerSecond(rf.wind_gust_speed_10m),
+            gust_hourly_maximum_speed: rf.max_10m_wind_gust.map(MetresPerSecond),
             visibility: Metres(rf.visibility),
             relative_humidity: Percentage(rf.screen_relative_humidity),
             pressure: Pascals(rf.mslp),
             uv_index: UvIndex(rf.uv_index),
         })
     }
-}
-
-fn parse(s: &str) -> Result<Forecast, Error> {
-    let rf: RawForecast = serde_json::from_str(s)?;
-    Forecast::try_from(rf)
 }
 
 #[derive(Debug, Deserialize)]
