@@ -19,7 +19,7 @@ pub fn has_coordinates() {
 pub fn has_request_point_distance() {
     let f: Forecast = SAMPLE.parse().expect("Failed to parse");
     let expected = Metres(27.9057);
-    assert_eq!(f.request_point_distance, expected)
+    assert_eq!(f.requested_point_distance, expected)
 }
 
 #[test]
