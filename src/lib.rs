@@ -1,10 +1,15 @@
+#![no_std]
+
+// TODO: Document expected memory requirements for (separately) JSON text and forecast structs.
+extern crate alloc;
+
 mod error;
 mod forecast;
 mod hourly;
 mod parse;
 mod units;
 
-use std::io::Read;
+use alloc::string::ToString;
 
 use url::Url;
 
@@ -13,12 +18,15 @@ pub use forecast::Forecast;
 pub use parse::Coordinates;
 pub use units::*;
 
-use crate::parse::RawForecast;
+use parse::RawForecast;
 
 const HOURLY_URL: &str = "https://data.hub.api.metoffice.gov.uk/sitespecific/v0/point/hourly";
+const SOURCE_PARAM: (&str, &str) = ("source", "BD1");
+const METADATA_PARAM: (&str, &str) = ("excludeParameterMetadata", "true");
+const LOCATION_NAME_PARAM: (&str, &str) = ("includeLocationName", "true");
 
-pub fn hourly_predictions_from_reader(rdr: impl Read) -> Result<Forecast, Error> {
-    serde_json::de::from_reader::<_, RawForecast>(rdr)
+pub fn hourly_predictions_from_bytes(bytes: &[u8]) -> Result<Forecast, Error> {
+    serde_json::de::from_slice::<RawForecast>(bytes)
         .map_err(Error::Serde)
         .and_then(Forecast::try_from)
 }
@@ -29,9 +37,9 @@ pub fn hourly_predictions_url_for_location(latitude: f64, longitude: f64) -> Url
         &[
             ("latitude", latitude.to_string().as_str()),
             ("longitude", longitude.to_string().as_str()),
-            ("source", "BD1"),
-            ("excludeParameterMetadata", "true"),
-            ("includeLocationName", "true"),
+            SOURCE_PARAM,
+            METADATA_PARAM,
+            LOCATION_NAME_PARAM,
         ],
     )
     .expect("Bug in hourly URL construction.")

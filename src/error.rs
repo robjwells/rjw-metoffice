@@ -5,8 +5,8 @@ pub enum Error {
     UnknownCondition(i8),
 }
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Error {
+    fn fmt(&self, _f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         todo!()
     }
 }
@@ -17,4 +17,3 @@ impl From<serde_json::Error> for Error {
         Self::Serde(value)
     }
 }
-

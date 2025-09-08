@@ -1,4 +1,6 @@
-use std::str::FromStr;
+use alloc::str::FromStr;
+use alloc::string::String;
+use alloc::vec::Vec;
 
 use serde::Deserialize;
 
@@ -32,7 +34,7 @@ pub(crate) struct Properties {
 
 #[derive(Debug, Deserialize)]
 pub(crate) struct Location {
-    pub name: String
+    pub name: String,
 }
 
 fn utc_minutes<'de, D>(d: D) -> Result<jiff::Zoned, D::Error>

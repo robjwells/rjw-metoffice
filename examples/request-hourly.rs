@@ -18,7 +18,11 @@ fn main() {
         .header("apikey", apikey)
         .call()
         .expect("Did not successfully make request and receive response");
-    let forecast = rjw_metoffice::hourly_predictions_from_reader(resp.into_body().as_reader())
+    let bytes = resp
+        .into_body()
+        .read_to_vec()
+        .expect("Failed to read response into vec.");
+    let forecast = rjw_metoffice::hourly_predictions_from_bytes(&bytes)
         .expect("Failed to parse body as forecast");
     println!("{forecast:#?}");
 }

@@ -1,3 +1,6 @@
+use alloc::string::String;
+use alloc::vec::Vec;
+
 use crate::hourly::HourlyForecast;
 use crate::parse::RawForecast;
 use crate::{Coordinates, Error, Metres};
@@ -16,7 +19,7 @@ pub struct Forecast {
     pub predictions: Vec<HourlyForecast>,
 }
 
-impl std::str::FromStr for Forecast {
+impl core::str::FromStr for Forecast {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
