@@ -85,7 +85,7 @@ impl TryFrom<RawThreeHourlyForecast> for ThreeHourly {
         Ok(Self {
             time: rf.time,
             conditions: rf.significant_weather_code.try_into()?,
-            temperature_feels_like: Celsius(rf.feels_like_temperature),
+            temperature_feels_like: Celsius(rf.feels_like_temp),
             temperature_maximum: Celsius(rf.max_screen_air_temp),
             temperature_minimum: Celsius(rf.min_screen_air_temp),
             precipitation_probability: Percentage(rf.prob_of_precipitation),

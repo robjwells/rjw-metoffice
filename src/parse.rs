@@ -169,7 +169,6 @@ pub(crate) struct RawHourlyForecast {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[allow(unused)]
 pub(crate) struct RawThreeHourlyForecast {
     /// Time at which this forecast is valid.
     #[serde(deserialize_with = "utc_minutes")]
@@ -180,7 +179,7 @@ pub(crate) struct RawThreeHourlyForecast {
     pub min_screen_air_temp: f32,
     /// The temperature it feels like, taking into account humidity and wind chill but
     /// not radiation.
-    pub feels_like_temperature: f32,
+    pub feels_like_temp: f32,
     /// Surface wind speed in metres per second.
     pub wind_speed_10m: f32,
     /// Direction from which the wind is blowing in degrees.
