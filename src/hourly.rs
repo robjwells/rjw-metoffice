@@ -14,18 +14,18 @@ pub struct Hourly {
     /// Temperature at screen level.
     ///
     /// Stevenson screen height is approximately 1.5m above ground level.
-    pub screen_temperature: Celsius,
+    pub temperature: Celsius,
     /// Maximum air temperature at screen level.
     ///
     /// Appears to be missing after 48 hours.
-    pub screen_maximum_temperature: Option<Celsius>,
+    pub temperature_maximum: Option<Celsius>,
     /// Minimum air temperature at screen level.
     ///
     /// Appears to be missing after 48 hours.
-    pub screen_minimum_temperature: Option<Celsius>,
+    pub temperature_minimum: Option<Celsius>,
     /// The temperature it feels like, taking into account humidity and wind chill but
     /// not radiation.
-    pub feels_like_temperature: Celsius,
+    pub temperature_feels_like: Celsius,
     /// Dew point temperature at screen level.
     ///
     /// Stevenson screen height is approximately 1.5m above ground level.
@@ -60,11 +60,11 @@ pub struct Hourly {
     /// wind direction.
     pub wind_direction: Degrees,
     /// Maximum 3-second mean wind speed observed over the 10 minutes preciding the validity time.
-    pub gust_speed: MetresPerSecond,
+    pub wind_gust_speed: MetresPerSecond,
     /// Maximum 3-second mean wind speed observed over the hour preciding the validity time.
     ///
     /// Appears to be missing after 48 hours.
-    pub gust_hourly_maximum_speed: Option<MetresPerSecond>,
+    pub wind_gust_hourly_maximum_speed: Option<MetresPerSecond>,
     /// Distance in metres at which a known object can be seen horizontally from screen level (1.5m.)
     pub visibility: Metres,
     /// Percent relative humidity at screen level (1.5m).
@@ -83,19 +83,19 @@ impl TryFrom<RawHourlyForecast> for Hourly {
         Ok(Self {
             time: rf.time,
             conditions: rf.significant_weather_code.try_into()?,
-            screen_temperature: Celsius(rf.screen_temperature),
-            feels_like_temperature: Celsius(rf.feels_like_temperature),
+            temperature: Celsius(rf.screen_temperature),
+            temperature_feels_like: Celsius(rf.feels_like_temperature),
             screen_dew_point_temperature: Celsius(rf.screen_dew_point_temperature),
-            screen_maximum_temperature: rf.max_screen_air_temp.map(Celsius),
-            screen_minimum_temperature: rf.min_screen_air_temp.map(Celsius),
+            temperature_maximum: rf.max_screen_air_temp.map(Celsius),
+            temperature_minimum: rf.min_screen_air_temp.map(Celsius),
             precipitation_probability: Percentage(rf.prob_of_precipitation),
             precipitation_rate: MillimetresPerHour(rf.precipitation_rate),
             precipitation_total: rf.total_precip_amount.map(Millimetres),
             snow_total: rf.total_snow_amount.map(Millimetres),
             wind_speed: MetresPerSecond(rf.wind_speed_10m),
             wind_direction: Degrees(rf.wind_direction_from_10m),
-            gust_speed: MetresPerSecond(rf.wind_gust_speed_10m),
-            gust_hourly_maximum_speed: rf.max_10m_wind_gust.map(MetresPerSecond),
+            wind_gust_speed: MetresPerSecond(rf.wind_gust_speed_10m),
+            wind_gust_hourly_maximum_speed: rf.max_10m_wind_gust.map(MetresPerSecond),
             visibility: Metres(rf.visibility),
             relative_humidity: Percentage(rf.screen_relative_humidity),
             pressure: Pascals(rf.mslp),
