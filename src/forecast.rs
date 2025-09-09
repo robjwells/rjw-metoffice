@@ -2,8 +2,8 @@ use alloc::string::String;
 use alloc::vec::Vec;
 
 use crate::hourly::Hourly;
-use crate::parse::{RawForecast, RawHourlyForecast, RawTimePeriod};
-use crate::{Coordinates, Error, Metres, TimePeriod};
+use crate::parse::{RawForecast, RawHourlyForecast, RawThreeHourlyForecast, RawTimePeriod};
+use crate::{Coordinates, Error, Metres, ThreeHourly, TimePeriod};
 
 #[derive(Debug)]
 pub struct Forecast<T>
@@ -20,15 +20,6 @@ where
     pub predictions_made_at: jiff::Zoned,
     /// Forecast predictions.
     pub predictions: Vec<T>,
-}
-
-impl core::str::FromStr for Forecast<Hourly> {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let rf: RawForecast<RawHourlyForecast> = serde_json::from_str(s)?;
-        Forecast::try_from(rf)
-    }
 }
 
 impl<R> TryFrom<RawForecast<R>> for Forecast<R::Output>
@@ -51,5 +42,57 @@ where
                 .map(R::Output::try_from)
                 .collect::<Result<Vec<R::Output>, Error>>()?,
         })
+    }
+}
+
+impl<T: TimePeriod> Forecast<T> {
+    fn try_from_str<'a, R>(s: &'a str) -> Result<Self, Error>
+    where
+        R: RawTimePeriod<Output = T> + serde::Deserialize<'a>,
+    {
+        serde_json::from_str::<RawForecast<R>>(s)
+            .map_err(Error::Serde)
+            .and_then(Forecast::try_from)
+    }
+
+    fn try_from_bytes<'a, R>(bytes: &'a [u8]) -> Result<Self, Error>
+    where
+        R: RawTimePeriod<Output = T> + serde::Deserialize<'a>,
+    {
+        serde_json::from_slice::<RawForecast<R>>(bytes)
+            .map_err(Error::Serde)
+            .and_then(Forecast::try_from)
+    }
+}
+
+impl TryFrom<&[u8]> for Forecast<Hourly> {
+    type Error = Error;
+
+    fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
+        Forecast::try_from_bytes::<RawHourlyForecast>(bytes)
+    }
+}
+
+impl core::str::FromStr for Forecast<Hourly> {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Forecast::try_from_str::<RawHourlyForecast>(s)
+    }
+}
+
+impl TryFrom<&[u8]> for Forecast<ThreeHourly> {
+    type Error = Error;
+
+    fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
+        Forecast::try_from_bytes::<RawThreeHourlyForecast>(bytes)
+    }
+}
+
+impl core::str::FromStr for Forecast<ThreeHourly> {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Forecast::try_from_str::<RawThreeHourlyForecast>(s)
     }
 }

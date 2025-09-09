@@ -1,10 +1,9 @@
 use alloc::str::FromStr;
 use alloc::string::String;
 use alloc::vec::Vec;
-
 use serde::Deserialize;
 
-use crate::{Error, Hourly, TimePeriod};
+use crate::{Error, Hourly, ThreeHourly, TimePeriod};
 
 pub(crate) trait RawTimePeriod: Sized {
     type Output: TimePeriod + TryFrom<Self, Error = Error>;
@@ -12,6 +11,10 @@ pub(crate) trait RawTimePeriod: Sized {
 
 impl RawTimePeriod for RawHourlyForecast {
     type Output = Hourly;
+}
+
+impl RawTimePeriod for RawThreeHourlyForecast {
+    type Output = ThreeHourly;
 }
 
 #[derive(Debug, Deserialize)]

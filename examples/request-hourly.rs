@@ -1,3 +1,5 @@
+use rjw_metoffice::{Forecast, Hourly};
+
 fn main() {
     let apikey = std::env::var("MET_OFFICE_DATAHUB_KEY")
         .expect("MET_OFFICE_DATAHUB_KEY environment variable must be set");
@@ -22,7 +24,7 @@ fn main() {
         .into_body()
         .read_to_vec()
         .expect("Failed to read response into vec.");
-    let forecast = rjw_metoffice::hourly_predictions_from_bytes(&bytes)
-        .expect("Failed to parse body as forecast");
+    let forecast: Forecast<Hourly> =
+        bytes.as_slice().try_into().expect("Failed to parse body as forecast");
     println!("{forecast:#?}");
 }

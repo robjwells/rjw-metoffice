@@ -30,7 +30,7 @@ pub struct Hourly {
     ///
     /// Stevenson screen height is approximately 1.5m above ground level.
     pub screen_dew_point_temperature: Celsius,
-    /// Probability of precipitation over the hour centered at the validity time.
+    /// Probability of precipitation over the hour centred at the validity time.
     pub precipitation_probability: Percentage,
     /// Rate at which liquid water is being deposited on the surface, in mm per hour.
     pub precipitation_rate: MillimetresPerHour,
