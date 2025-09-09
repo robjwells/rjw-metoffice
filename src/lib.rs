@@ -15,6 +15,7 @@ use url::Url;
 
 pub use error::Error;
 pub use forecast::Forecast;
+pub use hourly::Hourly;
 pub use parse::Coordinates;
 pub use units::*;
 
@@ -25,7 +26,7 @@ const SOURCE_PARAM: (&str, &str) = ("source", "BD1");
 const METADATA_PARAM: (&str, &str) = ("excludeParameterMetadata", "true");
 const LOCATION_NAME_PARAM: (&str, &str) = ("includeLocationName", "true");
 
-pub fn hourly_predictions_from_bytes(bytes: &[u8]) -> Result<Forecast, Error> {
+pub fn hourly_predictions_from_bytes(bytes: &[u8]) -> Result<Forecast<Hourly>, Error> {
     serde_json::de::from_slice::<RawForecast>(bytes)
         .map_err(Error::Serde)
         .and_then(Forecast::try_from)

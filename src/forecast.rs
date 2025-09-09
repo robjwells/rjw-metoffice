@@ -1,12 +1,21 @@
 use alloc::string::String;
 use alloc::vec::Vec;
 
-use crate::hourly::HourlyForecast;
+use crate::hourly::Hourly;
 use crate::parse::RawForecast;
 use crate::{Coordinates, Error, Metres};
 
+pub(crate) mod sealed {
+    pub trait Sealed {}
+}
+
+pub trait TimePeriod: sealed::Sealed {}
+
 #[derive(Debug)]
-pub struct Forecast {
+pub struct Forecast<T>
+where
+    T: TimePeriod,
+{
     /// Forecast location name.
     pub location_name: String,
     /// Weather station location in the WGS 84 geographic coordinate reference system.
@@ -15,11 +24,11 @@ pub struct Forecast {
     pub requested_point_distance: Metres,
     /// Time at which the weather model was run.
     pub predictions_made_at: jiff::Zoned,
-    /// Hourly forecast predictions.
-    pub predictions: Vec<HourlyForecast>,
+    /// Forecast predictions.
+    pub predictions: Vec<T>,
 }
 
-impl core::str::FromStr for Forecast {
+impl core::str::FromStr for Forecast<Hourly> {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -28,7 +37,7 @@ impl core::str::FromStr for Forecast {
     }
 }
 
-impl TryFrom<RawForecast> for Forecast {
+impl TryFrom<RawForecast> for Forecast<Hourly> {
     type Error = Error;
 
     fn try_from(mut value: RawForecast) -> Result<Self, Self::Error> {
@@ -42,8 +51,8 @@ impl TryFrom<RawForecast> for Forecast {
                 .properties
                 .time_series
                 .into_iter()
-                .map(HourlyForecast::try_from)
-                .collect::<Result<Vec<HourlyForecast>, Error>>()?,
+                .map(Hourly::try_from)
+                .collect::<Result<Vec<Hourly>, Error>>()?,
         })
     }
 }

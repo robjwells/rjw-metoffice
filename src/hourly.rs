@@ -5,7 +5,7 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct HourlyForecast {
+pub struct Hourly {
     /// Time at which this forecast is valid.
     pub time: jiff::Zoned,
     /// The most significant weather conditions at this time, taking into account both
@@ -76,7 +76,10 @@ pub struct HourlyForecast {
     pub uv_index: UvIndex,
 }
 
-impl TryFrom<RawHourlyForecast> for HourlyForecast {
+impl crate::forecast::sealed::Sealed for Hourly {}
+impl crate::forecast::TimePeriod for Hourly {}
+
+impl TryFrom<RawHourlyForecast> for Hourly {
     type Error = Error;
 
     fn try_from(rf: RawHourlyForecast) -> Result<Self, Self::Error> {
