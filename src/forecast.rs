@@ -2,14 +2,8 @@ use alloc::string::String;
 use alloc::vec::Vec;
 
 use crate::hourly::Hourly;
-use crate::parse::RawForecast;
-use crate::{Coordinates, Error, Metres};
-
-pub(crate) mod sealed {
-    pub trait Sealed {}
-}
-
-pub trait TimePeriod: sealed::Sealed {}
+use crate::parse::{RawForecast, RawHourlyForecast, RawTimePeriod};
+use crate::{Coordinates, Error, Metres, TimePeriod};
 
 #[derive(Debug)]
 pub struct Forecast<T>
@@ -32,15 +26,18 @@ impl core::str::FromStr for Forecast<Hourly> {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let rf: RawForecast = serde_json::from_str(s)?;
+        let rf: RawForecast<RawHourlyForecast> = serde_json::from_str(s)?;
         Forecast::try_from(rf)
     }
 }
 
-impl TryFrom<RawForecast> for Forecast<Hourly> {
+impl<R> TryFrom<RawForecast<R>> for Forecast<R::Output>
+where
+    R: RawTimePeriod,
+{
     type Error = Error;
 
-    fn try_from(mut value: RawForecast) -> Result<Self, Self::Error> {
+    fn try_from(mut value: RawForecast<R>) -> Result<Self, Self::Error> {
         let feature = value.features.remove(0);
         Ok(Forecast {
             location_name: feature.properties.location.name,
@@ -51,8 +48,8 @@ impl TryFrom<RawForecast> for Forecast<Hourly> {
                 .properties
                 .time_series
                 .into_iter()
-                .map(Hourly::try_from)
-                .collect::<Result<Vec<Hourly>, Error>>()?,
+                .map(R::Output::try_from)
+                .collect::<Result<Vec<R::Output>, Error>>()?,
         })
     }
 }

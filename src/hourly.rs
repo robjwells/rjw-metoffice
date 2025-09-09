@@ -76,9 +76,6 @@ pub struct Hourly {
     pub uv_index: UvIndex,
 }
 
-impl crate::forecast::sealed::Sealed for Hourly {}
-impl crate::forecast::TimePeriod for Hourly {}
-
 impl TryFrom<RawHourlyForecast> for Hourly {
     type Error = Error;
 
