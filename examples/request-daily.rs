@@ -1,4 +1,4 @@
-use rjw_metoffice::{Forecast, Hourly};
+use rjw_metoffice::{Daily, Forecast};
 
 fn main() {
     let apikey = std::env::var("MET_OFFICE_DATAHUB_KEY")
@@ -15,7 +15,7 @@ fn main() {
         .parse()
         .expect("Could not parse second argument as a floating-point number");
 
-    let url = rjw_metoffice::hourly_predictions_url_for_location(lat, lon);
+    let url = rjw_metoffice::daily_predictions_url_for_location(lat, lon);
     let resp = ureq::get(url.to_string())
         .header("apikey", apikey)
         .call()
@@ -24,7 +24,7 @@ fn main() {
         .into_body()
         .read_to_vec()
         .expect("Failed to read response into vec.");
-    let forecast: Forecast<Hourly> = bytes
+    let forecast: Forecast<Daily> = bytes
         .as_slice()
         .try_into()
         .expect("Failed to parse body as forecast");

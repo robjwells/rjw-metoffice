@@ -3,7 +3,7 @@ use alloc::string::String;
 use alloc::vec::Vec;
 use serde::Deserialize;
 
-use crate::{Error, Hourly, ThreeHourly, TimePeriod};
+use crate::{Daily, Error, Hourly, ThreeHourly, TimePeriod};
 
 pub(crate) trait RawTimePeriod: Sized {
     type Output: TimePeriod + TryFrom<Self, Error = Error>;
@@ -15,6 +15,10 @@ impl RawTimePeriod for RawHourlyForecast {
 
 impl RawTimePeriod for RawThreeHourlyForecast {
     type Output = ThreeHourly;
+}
+
+impl RawTimePeriod for RawDailyForecast {
+    type Output = Daily;
 }
 
 #[derive(Debug, Deserialize)]
@@ -220,6 +224,61 @@ pub(crate) struct RawThreeHourlyForecast {
     pub prob_of_heavy_rain: f32,
     pub prob_of_hail: f32,
     pub prob_of_sferics: f32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct RawDailyForecast {
+    /// Time at which this forecast is valid.
+    #[serde(deserialize_with = "utc_minutes")]
+    pub time: jiff::Zoned,
+    pub day_significant_weather_code: Option<i8>,
+    pub day_max_screen_temperature: f32,
+    pub day_upper_bound_max_temp: f32,
+    pub day_lower_bound_max_temp: f32,
+    pub day_max_feels_like_temp: Option<f32>,
+    pub day_upper_bound_max_feels_like_temp: f32,
+    pub day_lower_bound_max_feels_like_temp: f32,
+    pub day_probability_of_precipitation: Option<f32>,
+    pub day_probability_of_rain: Option<f32>,
+    pub day_probability_of_heavy_rain: Option<f32>,
+    pub day_probability_of_snow: Option<f32>,
+    pub day_probability_of_heavy_snow: Option<f32>,
+    pub day_probability_of_hail: Option<f32>,
+    pub day_probability_of_sferics: Option<f32>,
+    pub max_uv_index: Option<u8>,
+    #[serde(rename = "midday10MWindSpeed")]
+    pub midday_10m_wind_speed: f32,
+    #[serde(rename = "midday10MWindDirection")]
+    pub midday_10m_wind_direction: f32,
+    #[serde(rename = "midday10MWindGust")]
+    pub midday_10m_wind_gust: f32,
+    pub midday_mslp: u32,
+    pub midday_relative_humidity: f32,
+    pub midday_visibility: f32,
+    pub night_significant_weather_code: i8,
+    pub night_min_screen_temperature: f32,
+    pub night_upper_bound_min_temp: f32,
+    pub night_lower_bound_min_temp: f32,
+    pub night_min_feels_like_temp: f32,
+    pub night_upper_bound_min_feels_like_temp: f32,
+    pub night_lower_bound_min_feels_like_temp: f32,
+    pub night_probability_of_precipitation: f32,
+    pub night_probability_of_rain: f32,
+    pub night_probability_of_heavy_rain: f32,
+    pub night_probability_of_snow: f32,
+    pub night_probability_of_heavy_snow: f32,
+    pub night_probability_of_hail: f32,
+    pub night_probability_of_sferics: f32,
+    #[serde(rename = "midnight10MWindSpeed")]
+    pub midnight_10m_wind_speed: f32,
+    #[serde(rename = "midnight10MWindDirection")]
+    pub midnight_10m_wind_direction: f32,
+    #[serde(rename = "midnight10MWindGust")]
+    pub midnight_10m_wind_gust: f32,
+    pub midnight_mslp: u32,
+    pub midnight_relative_humidity: f32,
+    pub midnight_visibility: f32,
 }
 
 #[cfg(test)]

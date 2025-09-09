@@ -2,8 +2,10 @@ use alloc::string::String;
 use alloc::vec::Vec;
 
 use crate::hourly::Hourly;
-use crate::parse::{RawForecast, RawHourlyForecast, RawThreeHourlyForecast, RawTimePeriod};
-use crate::{Coordinates, Error, Metres, ThreeHourly, TimePeriod};
+use crate::parse::{
+    RawDailyForecast, RawForecast, RawHourlyForecast, RawThreeHourlyForecast, RawTimePeriod,
+};
+use crate::{Coordinates, Daily, Error, Metres, ThreeHourly, TimePeriod};
 
 #[derive(Debug)]
 pub struct Forecast<T>
@@ -94,5 +96,21 @@ impl core::str::FromStr for Forecast<ThreeHourly> {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Forecast::try_from_str::<RawThreeHourlyForecast>(s)
+    }
+}
+
+impl TryFrom<&[u8]> for Forecast<Daily> {
+    type Error = Error;
+
+    fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
+        Self::try_from_bytes::<RawDailyForecast>(bytes)
+    }
+}
+
+impl core::str::FromStr for Forecast<Daily> {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::try_from_str::<RawDailyForecast>(s)
     }
 }

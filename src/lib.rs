@@ -3,6 +3,7 @@
 // TODO: Document expected memory requirements for (separately) JSON text and forecast structs.
 extern crate alloc;
 
+mod daily;
 mod error;
 mod forecast;
 mod hourly;
@@ -15,6 +16,7 @@ use alloc::string::ToString;
 
 use url::Url;
 
+pub use daily::Daily;
 pub use error::Error;
 pub use forecast::Forecast;
 pub use hourly::Hourly;
@@ -26,6 +28,7 @@ pub use units::*;
 const HOURLY_URL: &str = "https://data.hub.api.metoffice.gov.uk/sitespecific/v0/point/hourly";
 const THREE_HOURLY_URL: &str =
     "https://data.hub.api.metoffice.gov.uk/sitespecific/v0/point/three-hourly";
+const DAILY_URL: &str = "https://data.hub.api.metoffice.gov.uk/sitespecific/v0/point/daily";
 const SOURCE_PARAM: (&str, &str) = ("source", "BD1");
 const METADATA_PARAM: (&str, &str) = ("excludeParameterMetadata", "true");
 const LOCATION_NAME_PARAM: (&str, &str) = ("includeLocationName", "true");
@@ -36,6 +39,10 @@ pub fn hourly_predictions_url_for_location(latitude: f64, longitude: f64) -> Url
 
 pub fn three_hourly_predictions_url_for_location(latitude: f64, longitude: f64) -> Url {
     url_with_params(THREE_HOURLY_URL, latitude, longitude)
+}
+
+pub fn daily_predictions_url_for_location(latitude: f64, longitude: f64) -> Url {
+    url_with_params(DAILY_URL, latitude, longitude)
 }
 
 fn url_with_params(url: &str, latitude: f64, longitude: f64) -> Url {
