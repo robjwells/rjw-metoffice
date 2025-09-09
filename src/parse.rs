@@ -217,7 +217,7 @@ pub(crate) struct RawThreeHourlyForecast {
     pub prob_of_rain: f32,
     pub prob_of_heavy_rain: f32,
     pub prob_of_hail: f32,
-    pub prob_of_spherics: f32,
+    pub prob_of_sferics: f32,
 }
 
 #[cfg(test)]

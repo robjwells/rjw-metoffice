@@ -49,7 +49,7 @@ pub struct ThreeHourly {
     pub rain_probability: Percentage,
     pub heavy_rain_probability: Percentage,
     pub hail_probability: Percentage,
-    pub spherics_probability: Percentage,
+    pub sferics_probability: Percentage,
 }
 
 impl TryFrom<RawThreeHourlyForecast> for ThreeHourly {
@@ -78,7 +78,7 @@ impl TryFrom<RawThreeHourlyForecast> for ThreeHourly {
             rain_probability: Percentage(rf.prob_of_rain),
             heavy_rain_probability: Percentage(rf.prob_of_heavy_rain),
             hail_probability: Percentage(rf.prob_of_hail),
-            spherics_probability: Percentage(rf.prob_of_spherics),
+            sferics_probability: Percentage(rf.prob_of_sferics),
         })
     }
 }

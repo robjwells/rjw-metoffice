@@ -22,7 +22,7 @@ pub struct Hourly {
     /// Minimum air temperature at screen level.
     ///
     /// Appears to be missing after 48 hours.
-    pub screen_mininium_temperature: Option<Celsius>,
+    pub screen_minimum_temperature: Option<Celsius>,
     /// The temperature it feels like, taking into account humidity and wind chill but
     /// not radiation.
     pub feels_like_temperature: Celsius,
@@ -87,7 +87,7 @@ impl TryFrom<RawHourlyForecast> for Hourly {
             feels_like_temperature: Celsius(rf.feels_like_temperature),
             screen_dew_point_temperature: Celsius(rf.screen_dew_point_temperature),
             screen_maximum_temperature: rf.max_screen_air_temp.map(Celsius),
-            screen_mininium_temperature: rf.min_screen_air_temp.map(Celsius),
+            screen_minimum_temperature: rf.min_screen_air_temp.map(Celsius),
             precipitation_probability: Percentage(rf.prob_of_precipitation),
             precipitation_rate: MillimetresPerHour(rf.precipitation_rate),
             precipitation_total: rf.total_precip_amount.map(Millimetres),
