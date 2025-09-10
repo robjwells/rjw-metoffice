@@ -2,7 +2,7 @@ use serde::Deserialize;
 
 use crate::Error;
 
-#[derive(Debug, PartialEq, PartialOrd)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Latitude(f64);
 
 impl Latitude {
@@ -27,7 +27,7 @@ impl TryFrom<f64> for Latitude {
     }
 }
 
-#[derive(Debug, PartialEq, PartialOrd)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Longitude(f64);
 
 impl Longitude {
@@ -52,7 +52,7 @@ impl TryFrom<f64> for Longitude {
     }
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize, Clone, Copy)]
 #[serde(try_from = "[f64; 3]")]
 /// Coordinates in the WGS 84 coordinate reference system.
 pub struct Coordinates {
