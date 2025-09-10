@@ -3,7 +3,8 @@ use alloc::string::String;
 use alloc::vec::Vec;
 use serde::Deserialize;
 
-use crate::{Coordinates, Daily, Error, Hourly, ThreeHourly, TimePeriod};
+use crate::units::Coordinates;
+use crate::{Daily, Error, Hourly, ThreeHourly, TimePeriod};
 
 pub(crate) trait RawTimePeriod: Sized {
     type Output: TimePeriod + TryFrom<Self, Error = Error>;

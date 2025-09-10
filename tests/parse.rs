@@ -1,5 +1,6 @@
 use jiff::tz::TimeZone;
-use rjw_metoffice::{Coordinates, Forecast, Hourly, Metres};
+use rjw_metoffice::units::{Coordinates, Metres};
+use rjw_metoffice::{Forecast, Hourly};
 
 const SAMPLE: &str = include_str!("global-spot-hourly-sample.json");
 

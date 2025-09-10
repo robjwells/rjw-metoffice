@@ -1,6 +1,8 @@
-use crate::{
-    Celsius, Conditions, Degrees, Error, Metres, MetresPerSecond, Millimetres, Pascals, Percentage,
-    UvIndex, parse::RawThreeHourlyForecast,
+use crate::Error;
+use crate::parse::RawThreeHourlyForecast;
+use crate::units::{
+    Celsius, Conditions, Degrees, Metres, MetresPerSecond, Millimetres, Pascals, Percentage,
+    UvIndex,
 };
 
 #[derive(Debug)]

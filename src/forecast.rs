@@ -2,11 +2,11 @@ use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use url::Url;
 
-use crate::hourly::Hourly;
 use crate::parse::{
     RawDailyForecast, RawForecast, RawHourlyForecast, RawThreeHourlyForecast, RawTimePeriod,
 };
-use crate::{Coordinates, Daily, Error, Latitude, Longitude, Metres, ThreeHourly, TimePeriod};
+use crate::units::{Coordinates, Latitude, Longitude, Metres};
+use crate::{Daily, Error, Hourly, ThreeHourly, TimePeriod};
 
 #[derive(Debug)]
 pub struct Forecast<T>

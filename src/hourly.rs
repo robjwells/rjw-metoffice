@@ -1,6 +1,7 @@
+use crate::Error;
 use crate::parse::RawHourlyForecast;
-use crate::{
-    Celsius, Conditions, Degrees, Error, Metres, MetresPerSecond, Millimetres, MillimetresPerHour,
+use crate::units::{
+    Celsius, Conditions, Degrees, Metres, MetresPerSecond, Millimetres, MillimetresPerHour,
     Pascals, Percentage, UvIndex,
 };
 

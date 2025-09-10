@@ -1,6 +1,7 @@
+use crate::Error;
 use crate::parse::RawDailyForecast;
-use crate::{
-    Celsius, Conditions, Degrees, Error, Metres, MetresPerSecond, Pascals, Percentage, UvIndex,
+use crate::units::{
+    Celsius, Conditions, Degrees, Metres, MetresPerSecond, Pascals, Percentage, UvIndex,
 };
 
 #[derive(Debug)]
