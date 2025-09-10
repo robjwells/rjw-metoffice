@@ -5,42 +5,45 @@ use crate::units::{
     Pascals, Percentage, UvIndex,
 };
 
+/// Forecast for a particular hour
 #[derive(Debug)]
 pub struct Hourly {
-    /// Time at which this forecast is valid.
+    /// Time at which this forecast is valid
     pub time: jiff::Zoned,
-    /// The most significant weather conditions at this time, taking into account both
-    /// instantaneous and preceding conditions.
+    /// The most significant weather conditions
+    ///
+    /// This takes into account both instantaneous and preceding conditions.
     pub conditions: Conditions,
-    /// Temperature at screen level.
+    /// Air temperature at screen level
     ///
     /// Stevenson screen height is approximately 1.5m above ground level.
     pub temperature: Celsius,
-    /// Maximum air temperature at screen level.
+    /// Maximum air temperature at screen level
     ///
     /// Appears to be missing after 48 hours.
     pub temperature_maximum: Option<Celsius>,
-    /// Minimum air temperature at screen level.
+    /// Minimum air temperature at screen level
     ///
     /// Appears to be missing after 48 hours.
     pub temperature_minimum: Option<Celsius>,
-    /// The temperature it feels like, taking into account humidity and wind chill but
-    /// not radiation.
+    /// The temperature it feels like
+    ///
+    /// This takes into account humidity and wind chill but not radiation.
     pub temperature_feels_like: Celsius,
-    /// Dew point temperature at screen level.
+    /// Dew point temperature at screen level
     ///
     /// Stevenson screen height is approximately 1.5m above ground level.
     pub screen_dew_point_temperature: Celsius,
-    /// Probability of precipitation over the hour centred at the validity time.
+    /// Probability of precipitation over the hour centred at the validity time
     pub precipitation_probability: Percentage,
-    /// Rate at which liquid water is being deposited on the surface, in mm per hour.
+    /// Rate at which liquid water is being deposited on the surface
     pub precipitation_rate: MillimetresPerHour,
     /// Implied depth of the layer of liquid water which has been deposited on the
-    /// surface since the previous hour.
+    /// surface since the previous hour
     ///
     /// Appears to be missing after 48 hours.
     pub precipitation_total: Option<Millimetres>,
-    /// Amount of snow that has fallen out of the sky in the last hour.
+    /// Amount of snow that has fallen out of the sky in the last hour
     ///
     /// This does not reflect snow lying on the ground. Falling snow may not settle at all and may
     /// be accompanied by rain (ie is sleet). Falling snow is stated as liquid water equivalent in
@@ -49,12 +52,14 @@ pub struct Hourly {
     ///
     /// Appears to be missing after 48 hours.
     pub snow_total: Option<Millimetres>,
-    /// Surface wind speed in metres per second.
+    /// Surface wind speed
     ///
     /// Mean wind speed is equivalent to the mean speed observed over the 10 minutes preceding the
     /// validity time. Measured at 10 metres above ground, this is considered surface wind speed.
     pub wind_speed: MetresPerSecond,
-    /// Direction from which the wind is blowing in degrees.
+    /// Direction from which the wind is blowing
+    ///
+    /// This is given in degrees, where 0° is north, 90° is east, etc.
     ///
     /// Mean wind direction is equivalent to the mean direction observed over the 10 minutes
     /// preceding the validity time. Measured at 10 metres above ground, this is considered surface

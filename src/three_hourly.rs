@@ -5,6 +5,7 @@ use crate::units::{
     UvIndex,
 };
 
+/// Forecast for a three-hour period
 #[derive(Debug)]
 pub struct ThreeHourly {
     /// Time at which this forecast is valid.

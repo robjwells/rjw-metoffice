@@ -1,19 +1,25 @@
+//! Newtype wrappers for forecast units
 use serde::Deserialize;
 
 use crate::Error;
 
+/// Latitude in decimal degrees in the WGS 84 reference system
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Latitude(f64);
 
 impl Latitude {
+    /// Construct a latitude from a float
+    ///
+    /// Returns an error if the given latitude is out of bounds (±90°).
     pub fn new(d: f64) -> Result<Self, Error> {
         if matches!(d, -90.0..=90.0) {
             Ok(Self(d))
         } else {
-            Err(Error::CoordinatesOutOfBounds)
+            Err(Error::GeographicDegreesOutOfBounds)
         }
     }
 
+    /// Underlying decimal degrees
     pub fn as_float(&self) -> f64 {
         self.0
     }
@@ -35,18 +41,23 @@ impl core::fmt::Display for Latitude {
     }
 }
 
+/// Latitude in decimal degrees in the WGS 84 reference system
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Longitude(f64);
 
 impl Longitude {
+    /// Construct a longitude from a float
+    ///
+    /// Returns an error if the given longitude is out of bounds (±180°).
     pub fn new(d: f64) -> Result<Self, Error> {
         if matches!(d, -180.0..=180.0) {
             Ok(Self(d))
         } else {
-            Err(Error::CoordinatesOutOfBounds)
+            Err(Error::GeographicDegreesOutOfBounds)
         }
     }
 
+    /// Underlying decimal degrees
     pub fn as_float(&self) -> f64 {
         self.0
     }
@@ -68,9 +79,9 @@ impl core::fmt::Display for Longitude {
     }
 }
 
+/// Coordinates in the WGS 84 coordinate reference system
 #[derive(Debug, PartialEq, Deserialize, Clone, Copy)]
 #[serde(try_from = "[f64; 3]")]
-/// Coordinates in the WGS 84 coordinate reference system.
 pub struct Coordinates {
     pub latitude: Latitude,
     pub longitude: Longitude,
@@ -162,6 +173,10 @@ impl core::fmt::Display for Pascals {
     }
 }
 
+/// Degrees representing an azimuth
+///
+/// This represents a direction, from the perspective of a weather forecast location, relative to
+/// north. For example, `Degrees(90.0)` is due east.
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Degrees(pub f32);
 
@@ -171,6 +186,9 @@ impl core::fmt::Display for Degrees {
     }
 }
 
+/// UV index value
+///
+/// A unitless measure representing the strength of solar radiation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct UvIndex(pub u8);
 
@@ -193,6 +211,10 @@ impl core::fmt::Display for UvIndex {
     }
 }
 
+/// Most significant weather conditions
+///
+/// Derived from a "significant weather code", `Conditions` can be thought of as a
+/// summary description for the conditions at a particular time.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Conditions {
     TraceRain,
@@ -266,7 +288,7 @@ impl TryFrom<i8> for Conditions {
             28 => ThunderShowerNight,
             29 => ThunderShowerDay,
             30 => Thunder,
-            _ => Err(Error::UnknownCondition(code))?,
+            _ => Err(Error::UnknownWeatherCondition(code))?,
         })
     }
 }

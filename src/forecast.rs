@@ -8,6 +8,7 @@ use crate::parse::{
 use crate::units::{Coordinates, Latitude, Longitude, Metres};
 use crate::{Daily, Error, Hourly, ThreeHourly, TimePeriod};
 
+/// Container for a time series of predictions for particular location
 #[derive(Debug)]
 pub struct Forecast<T>
 where
@@ -34,6 +35,7 @@ const METADATA_PARAM: (&str, &str) = ("excludeParameterMetadata", "true");
 const LOCATION_NAME_PARAM: (&str, &str) = ("includeLocationName", "true");
 
 impl<T: TimePeriod> Forecast<T> {
+    /// Construct an API URL for the given location, with standard extra parameters
     fn url_with_params(url: &str, latitude: Latitude, longitude: Longitude) -> Url {
         Url::parse_with_params(
             url,
@@ -45,23 +47,35 @@ impl<T: TimePeriod> Forecast<T> {
                 LOCATION_NAME_PARAM,
             ],
         )
-        .expect("Bug in URL construction.")
+        .expect("Bug in URL construction")
     }
 }
 
 impl Forecast<Hourly> {
+    /// Construct a JSON API URL for hourly forecasts
+    ///
+    /// Note that the latitude and longitude given are your _request_, but the resulting forecast
+    /// will be for the nearest location for which forecasts are available.
     pub fn url_for_location(latitude: Latitude, longitude: Longitude) -> Url {
         Self::url_with_params(HOURLY_URL, latitude, longitude)
     }
 }
 
 impl Forecast<ThreeHourly> {
+    /// Construct a JSON API URL for three-hourly forecasts
+    ///
+    /// Note that the latitude and longitude given are your _request_, but the resulting forecast
+    /// will be for the nearest location for which forecasts are available.
     pub fn url_for_location(latitude: Latitude, longitude: Longitude) -> Url {
         Self::url_with_params(THREE_HOURLY_URL, latitude, longitude)
     }
 }
 
 impl Forecast<Daily> {
+    /// Construct a JSON API URL for daily forecasts
+    ///
+    /// Note that the latitude and longitude given are your _request_, but the resulting forecast
+    /// will be for the nearest location for which forecasts are available.
     pub fn url_for_location(latitude: Latitude, longitude: Longitude) -> Url {
         Self::url_with_params(DAILY_URL, latitude, longitude)
     }
