@@ -27,6 +27,14 @@ impl TryFrom<f64> for Latitude {
     }
 }
 
+impl core::fmt::Display for Latitude {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let c = if self.0.is_sign_positive() { 'N' } else { 'S' };
+        let d = self.0.abs();
+        write!(f, "{d:.3}° {c}")
+    }
+}
+
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Longitude(f64);
 
@@ -49,6 +57,14 @@ impl TryFrom<f64> for Longitude {
 
     fn try_from(value: f64) -> Result<Self, Self::Error> {
         Self::new(value)
+    }
+}
+
+impl core::fmt::Display for Longitude {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let c = if self.0.is_sign_positive() { 'W' } else { 'E' };
+        let d = self.0.abs();
+        write!(f, "{d:.3}° {c}")
     }
 }
 
@@ -77,29 +93,83 @@ impl TryFrom<[f64; 3]> for Coordinates {
     }
 }
 
+impl core::fmt::Display for Coordinates {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{}, {} {}", self.latitude, self.longitude, self.altitude)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Percentage(pub f32);
+
+impl core::fmt::Display for Percentage {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{:.0}%", self.0)
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Metres(pub f32);
 
+impl core::fmt::Display for Metres {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{:.0}m", self.0)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct MetresPerSecond(pub f32);
+
+impl core::fmt::Display for MetresPerSecond {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{:.2} m/s", self.0)
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Millimetres(pub f32);
 
+impl core::fmt::Display for Millimetres {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{:.2} mm", self.0)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct MillimetresPerHour(pub f32);
+
+impl core::fmt::Display for MillimetresPerHour {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{:.2} mm/hour", self.0)
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Celsius(pub f32);
 
+impl core::fmt::Display for Celsius {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{:.2}°C", self.0)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Pascals(pub u32);
 
+impl core::fmt::Display for Pascals {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{} Pa", self.0)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Degrees(pub f32);
+
+impl core::fmt::Display for Degrees {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{:.0}°", self.0)
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct UvIndex(pub u8);
@@ -114,6 +184,12 @@ impl UvIndex {
                 "Avoid being outside during midday hours. Shirt, sunscreen and hat are essential."
             }
         }
+    }
+}
+
+impl core::fmt::Display for UvIndex {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
@@ -192,6 +268,38 @@ impl TryFrom<i8> for Conditions {
             30 => Thunder,
             _ => Err(Error::UnknownCondition(code))?,
         })
+    }
+}
+
+impl core::fmt::Display for Conditions {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        use Conditions::*;
+        let s: &'static str = match self {
+            TraceRain => "Trace of rain",
+            ClearNight => "Clear",
+            SunnyDay => "Sunny",
+            PartlyCloudyNight | PartlyCloudyDay => "Partly Cloudy",
+            Mist => "Mist",
+            Fog => "Fog",
+            Cloudy => "Cloudy",
+            Overcast => "Overcast",
+            LightRainShowerNight | LightRainShowerDay => "Light rain shower",
+            Drizzle => "Drizzle",
+            LightRain => "Light rain",
+            HeavyRainShowerNight | HeavyRainShowerDay => "Heavy rain shower",
+            HeavyRain => "Heavy rain",
+            SleetShowerNight | SleetShowerDay => "Sleet shower",
+            Sleet => "Sleet",
+            HailShowerNight | HailShowerDay => "Hail shower",
+            Hail => "Hail",
+            LightSnowShowerNight | LightSnowShowerDay => "Light snow shower",
+            LightSnow => "Light snow",
+            HeavySnowShowerNight | HeavySnowShowerDay => "Heavy snow shower",
+            HeavySnow => "Heavy snow",
+            ThunderShowerNight | ThunderShowerDay => "Thunder shower",
+            Thunder => "Thunder",
+        };
+        write!(f, "{s}")
     }
 }
 
