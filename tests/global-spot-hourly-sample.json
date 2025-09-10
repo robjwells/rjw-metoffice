@@ -12,6 +12,9 @@
           ]
         },
         "properties": {
+          "location": {
+            "name": "Exeter Met Office"
+          },
           "requestPointDistance": 27.9057,
           "modelRunDate": "2023-07-05T10:00Z",
           "timeSeries": [
