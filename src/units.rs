@@ -1,4 +1,81 @@
+use serde::Deserialize;
+
 use crate::Error;
+
+#[derive(Debug, PartialEq, PartialOrd)]
+pub struct Latitude(f64);
+
+impl Latitude {
+    pub fn new(d: f64) -> Result<Self, Error> {
+        if matches!(d, -90.0..=90.0) {
+            Ok(Self(d))
+        } else {
+            Err(Error::CoordinatesOutOfBounds)
+        }
+    }
+
+    pub fn as_float(&self) -> f64 {
+        self.0
+    }
+}
+
+impl TryFrom<f64> for Latitude {
+    type Error = Error;
+
+    fn try_from(value: f64) -> Result<Self, Self::Error> {
+        Self::new(value)
+    }
+}
+
+#[derive(Debug, PartialEq, PartialOrd)]
+pub struct Longitude(f64);
+
+impl Longitude {
+    pub fn new(d: f64) -> Result<Self, Error> {
+        if matches!(d, -180.0..=180.0) {
+            Ok(Self(d))
+        } else {
+            Err(Error::CoordinatesOutOfBounds)
+        }
+    }
+
+    pub fn as_float(&self) -> f64 {
+        self.0
+    }
+}
+
+impl TryFrom<f64> for Longitude {
+    type Error = Error;
+
+    fn try_from(value: f64) -> Result<Self, Self::Error> {
+        Self::new(value)
+    }
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+#[serde(try_from = "[f64; 3]")]
+/// Coordinates in the WGS 84 coordinate reference system.
+pub struct Coordinates {
+    pub latitude: Latitude,
+    pub longitude: Longitude,
+    pub altitude: Metres,
+}
+
+impl TryFrom<[f64; 3]> for Coordinates {
+    type Error = Error;
+
+    fn try_from(value: [f64; 3]) -> Result<Self, Self::Error> {
+        let [lon, lat, alt] = value;
+        let latitude = Latitude::new(lat)?;
+        let longitude = Longitude::new(lon)?;
+        let altitude = Metres(alt as f32);
+        Ok(Self {
+            latitude,
+            longitude,
+            altitude,
+        })
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Percentage(pub f32);
@@ -115,5 +192,23 @@ impl TryFrom<i8> for Conditions {
             30 => Thunder,
             _ => Err(Error::UnknownCondition(code))?,
         })
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::Coordinates;
+
+    #[test]
+    fn coordinates_only_in_bounds() {
+        let oob = [
+            [-180.1, 0.0, 0.0],
+            [180.1, 0.0, 0.0],
+            [0.0, 90.1, 0.0],
+            [0.0, -90.1, 0.0],
+        ];
+        for coords in oob {
+            assert!(Coordinates::try_from(coords).is_err())
+        }
     }
 }

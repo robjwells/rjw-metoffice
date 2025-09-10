@@ -3,7 +3,7 @@ use alloc::string::String;
 use alloc::vec::Vec;
 use serde::Deserialize;
 
-use crate::{Daily, Error, Hourly, ThreeHourly, TimePeriod};
+use crate::{Coordinates, Daily, Error, Hourly, ThreeHourly, TimePeriod};
 
 pub(crate) trait RawTimePeriod: Sized {
     type Output: TimePeriod + TryFrom<Self, Error = Error>;
@@ -63,36 +63,6 @@ where
     jiff::Timestamp::from_str(&s)
         .map(|ts| ts.to_zoned(jiff::tz::TimeZone::UTC))
         .map_err(|_| serde::de::Error::custom("Failed to parse datetime."))
-}
-
-#[derive(Debug, PartialEq, Deserialize)]
-#[serde(try_from = "[f64; 3]")]
-/// Coordinates in the WGS 84 coordinate reference system.
-pub struct Coordinates {
-    pub latitude: f64,
-    pub longitude: f64,
-    pub altitude: f64,
-}
-
-impl TryFrom<[f64; 3]> for Coordinates {
-    type Error = Error;
-
-    fn try_from(value: [f64; 3]) -> Result<Self, Self::Error> {
-        if let [
-            longitude @ -180.0..=180.0,
-            latitude @ -90.0..=90.0,
-            altitude,
-        ] = value
-        {
-            Ok(Self {
-                latitude,
-                longitude,
-                altitude,
-            })
-        } else {
-            Err(Error::CoordinatesOutOfBounds)
-        }
-    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -279,22 +249,4 @@ pub(crate) struct RawDailyForecast {
     pub midnight_mslp: u32,
     pub midnight_relative_humidity: f32,
     pub midnight_visibility: f32,
-}
-
-#[cfg(test)]
-mod test {
-    use super::Coordinates;
-
-    #[test]
-    fn coordinates_only_in_bounds() {
-        let oob = [
-            [-180.1, 0.0, 0.0],
-            [180.1, 0.0, 0.0],
-            [0.0, 90.1, 0.0],
-            [0.0, -90.1, 0.0],
-        ];
-        for coords in oob {
-            assert!(Coordinates::try_from(coords).is_err())
-        }
-    }
 }

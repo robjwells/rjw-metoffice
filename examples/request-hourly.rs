@@ -1,21 +1,25 @@
-use rjw_metoffice::{Forecast, Hourly};
+use rjw_metoffice::{Forecast, Hourly, Latitude, Longitude};
 
 fn main() {
     let apikey = std::env::var("MET_OFFICE_DATAHUB_KEY")
         .expect("MET_OFFICE_DATAHUB_KEY environment variable must be set");
     let mut args = std::env::args();
-    let lat: f64 = args
+    let lat: Latitude = args
         .nth(1)
         .expect("Provide latitude as the first argument")
-        .parse()
-        .expect("Could not parse first argument as a floating-point number");
-    let lon: f64 = args
+        .parse::<f64>()
+        .expect("Could not parse first argument as a floating-point number")
+        .try_into()
+        .expect("Latitude out of range");
+    let lon: Longitude = args
         .next()
         .expect("Provide longitude as the second argument")
-        .parse()
-        .expect("Could not parse second argument as a floating-point number");
+        .parse::<f64>()
+        .expect("Could not parse second argument as a floating-point number")
+        .try_into()
+        .expect("Longitude out of range");
 
-    let url = rjw_metoffice::hourly_predictions_url_for_location(lat, lon);
+    let url = Forecast::<Hourly>::url_for_location(lat, lon);
     let resp = ureq::get(url.to_string())
         .header("apikey", apikey)
         .call()

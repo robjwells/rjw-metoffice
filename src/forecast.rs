@@ -1,11 +1,12 @@
-use alloc::string::String;
+use alloc::string::{String, ToString};
 use alloc::vec::Vec;
+use url::Url;
 
 use crate::hourly::Hourly;
 use crate::parse::{
     RawDailyForecast, RawForecast, RawHourlyForecast, RawThreeHourlyForecast, RawTimePeriod,
 };
-use crate::{Coordinates, Daily, Error, Metres, ThreeHourly, TimePeriod};
+use crate::{Coordinates, Daily, Error, Latitude, Longitude, Metres, ThreeHourly, TimePeriod};
 
 #[derive(Debug)]
 pub struct Forecast<T>
@@ -22,6 +23,48 @@ where
     pub predictions_made_at: jiff::Zoned,
     /// Forecast predictions.
     pub predictions: Vec<T>,
+}
+
+const HOURLY_URL: &str = "https://data.hub.api.metoffice.gov.uk/sitespecific/v0/point/hourly";
+const THREE_HOURLY_URL: &str =
+    "https://data.hub.api.metoffice.gov.uk/sitespecific/v0/point/three-hourly";
+const DAILY_URL: &str = "https://data.hub.api.metoffice.gov.uk/sitespecific/v0/point/daily";
+const SOURCE_PARAM: (&str, &str) = ("source", "BD1");
+const METADATA_PARAM: (&str, &str) = ("excludeParameterMetadata", "true");
+const LOCATION_NAME_PARAM: (&str, &str) = ("includeLocationName", "true");
+
+impl<T: TimePeriod> Forecast<T> {
+    fn url_with_params(url: &str, latitude: Latitude, longitude: Longitude) -> Url {
+        Url::parse_with_params(
+            url,
+            &[
+                ("latitude", latitude.as_float().to_string().as_str()),
+                ("longitude", longitude.as_float().to_string().as_str()),
+                SOURCE_PARAM,
+                METADATA_PARAM,
+                LOCATION_NAME_PARAM,
+            ],
+        )
+        .expect("Bug in URL construction.")
+    }
+}
+
+impl Forecast<Hourly> {
+    pub fn url_for_location(latitude: Latitude, longitude: Longitude) -> Url {
+        Self::url_with_params(HOURLY_URL, latitude, longitude)
+    }
+}
+
+impl Forecast<ThreeHourly> {
+    pub fn url_for_location(latitude: Latitude, longitude: Longitude) -> Url {
+        Self::url_with_params(THREE_HOURLY_URL, latitude, longitude)
+    }
+}
+
+impl Forecast<Daily> {
+    pub fn url_for_location(latitude: Latitude, longitude: Longitude) -> Url {
+        Self::url_with_params(DAILY_URL, latitude, longitude)
+    }
 }
 
 impl<R> TryFrom<RawForecast<R>> for Forecast<R::Output>
