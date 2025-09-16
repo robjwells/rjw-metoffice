@@ -6,6 +6,30 @@ use crate::units::{
 };
 
 /// Forecast for a particular hour
+///
+/// ### Mapping to Met Office API fields
+///
+/// The following table shows the field names used by the Global Spot API, and the corresponding
+/// field names used by this struct. Identical names are omitted (allowing for the difference in
+/// JSON `camelCase` and Rust `snake_case`).
+///
+/// | API name | Struct name |
+/// |----------|-------------|
+/// | `feelsLikeTemperature` | `temperature_feels_like` |
+/// | `max10MWindGust` | `wind_gust_hourly_maximum_speed` |
+/// | `maxScreenAirTemp` | `temperature_maximum` |
+/// | `minScreenAirTemp` | `temperature_minimum` |
+/// | `mslp` | `pressure` |
+/// | `probOfPrecipitation` | `precipitation_probability` |
+/// | `screenDewPointTemperature` | `dew_point_temperature` |
+/// | `screenRelativeHumidity` | `relative_humidity` |
+/// | `screenTemperature` | `temperature` |
+/// | `significantWeatherCode` | `conditions` |
+/// | `totalPrecipAmount` | `precipitation_total` |
+/// | `totalSnowAmount` | `snow_total` |
+/// | `windDirection10M` | `wind_direction` |
+/// | `windGustSpeed10M` | `wind_gust_speed` |
+/// | `windSpeed10M` | `wind_speed` |
 #[derive(Debug)]
 pub struct Hourly {
     /// Time at which this forecast is valid
@@ -33,7 +57,7 @@ pub struct Hourly {
     /// Dew point temperature at screen level
     ///
     /// Stevenson screen height is approximately 1.5m above ground level.
-    pub screen_dew_point_temperature: Celsius,
+    pub dew_point_temperature: Celsius,
     /// Probability of precipitation over the hour centred at the validity time
     pub precipitation_probability: Percentage,
     /// Rate at which liquid water is being deposited on the surface
@@ -91,7 +115,7 @@ impl TryFrom<RawHourlyForecast> for Hourly {
             conditions: rf.significant_weather_code.try_into()?,
             temperature: Celsius(rf.screen_temperature),
             temperature_feels_like: Celsius(rf.feels_like_temperature),
-            screen_dew_point_temperature: Celsius(rf.screen_dew_point_temperature),
+            dew_point_temperature: Celsius(rf.screen_dew_point_temperature),
             temperature_maximum: rf.max_screen_air_temp.map(Celsius),
             temperature_minimum: rf.min_screen_air_temp.map(Celsius),
             precipitation_probability: Percentage(rf.prob_of_precipitation),
