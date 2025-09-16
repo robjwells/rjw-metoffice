@@ -43,7 +43,7 @@
 //! ## API key HTTP header
 //!
 //! You **must** add a `apikey` header to the HTTP request containing your Met Office Weather
-//! DataHub API key. The library cannot do this for you, so please consult the documentation for
+//! DataHub API key. This library cannot do this for you, so please consult the documentation for
 //! the HTTP client you are using.
 //!
 //! ## Forecast time periods and the `Forecast` struct
