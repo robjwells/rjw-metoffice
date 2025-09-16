@@ -6,6 +6,33 @@ use crate::units::{
 };
 
 /// Forecast for a three-hour period
+///
+/// ### Mapping to Met Office API fields
+///
+/// The following table shows the field names used by the Global Spot API, and the corresponding
+/// field names used by this struct. Identical names are omitted (allowing for the difference in
+/// JSON `camelCase` and Rust `snake_case`).
+///
+/// | API name | Struct name |
+/// |----------|-------------|
+/// | `feelsLikeTemp` | `temperature_feels_like` |
+/// | `max10MWindGust` | `wind_gust_three_hourly_maximum_speed` |
+/// | `maxScreenAirTemp` | `temperature_maximum` |
+/// | `minScreenAirTemp` | `temperature_minimum` |
+/// | `mslp` | `pressure` |
+/// | `probOfHeavyRain` | `heavy_rain_probability` |
+/// | `probOfHeavySnow` | `heavy_snow_probability` |
+/// | `probOfPrecipitation` | `precipitation_probability` |
+/// | `probOfRain` | `rain_probability` |
+/// | `probOfSferics` | `lightning_probability` |
+/// | `probOfSnow` | `snow_probability` |
+/// | `screenRelativeHumidity` | `screen_relative_humidity` |
+/// | `significantWeatherCode` | `conditions` |
+/// | `totalPrecipAmount` | `precipitation_total` |
+/// | `totalSnowAmount` | `snow_total` |
+/// | `windDirection10M` | `wind_direction` |
+/// | `windGustSpeed10M` | `wind_gust_speed` |
+/// | `windSpeed10M` | `wind_speed` |
 #[derive(Debug)]
 pub struct ThreeHourly {
     /// Time at which this forecast is valid.
