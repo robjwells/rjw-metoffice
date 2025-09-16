@@ -9,6 +9,36 @@ use crate::units::{
 /// Forecast for a particular day and the following night
 ///
 /// "Day" is from local dawn to dusk, "night" from dusk to dawn.
+///
+/// ### Mapping to Met Office API fields
+///
+/// In the Global Spot API, day and night fields are prefixed with day (or midday) and night (or
+/// midnight). Those fields are split here into the `Day` and `Night` structs and lose the prefix.
+/// As well, temperature predictions and their bounds are (where possible), grouped into
+/// `TemperaturePrediction` and lose their very specific individual field names.
+///
+/// Otherwise, the following renaming has occurred (omitting prefixes in the API names). Identical
+/// names are omitted (allowing for the difference in JSON `camelCase` and Rust `snake_case`).
+///
+/// | API name | Struct name |
+/// |----------|-------------|
+/// | `10mWindDirection` | `wind_direction` |
+/// | `10mWindGust` | `wind_gust_speed` |
+/// | `10mWindSpeed` | `wind_speed` |
+/// | `maxFeelsLikeTemp` | `temperature_feels_like_maximum` |
+/// | `maxScreenTemperature` | `temperature_maximum` |
+/// | `maxUvIndex` | `uv_index_maximum` |
+/// | `minFeelsLikeTemp` | `temperature_feels_like_minimum` |
+/// | `minScreenTemperature` | `temperature_minimum` |
+/// | `mslp` | `pressure` |
+/// | `probabilityOfHail` | `hail_probability` |
+/// | `probabilityOfHeavy_rain` | `heavy_rain_probability` |
+/// | `probabilityOfHeavy_snow` | `heavy_snow_probability` |
+/// | `probabilityOfPrecipitation` | `precipitation_probability` |
+/// | `probabilityOfRain` | `rain_probability` |
+/// | `probabilityOfSferics` | `lightning_probability` |
+/// | `probabilityOfSnow` | `snow_probability` |
+/// | `significantWeatherCode` | `conditions` |
 #[derive(Debug)]
 pub struct Daily {
     /// Time at which this forecast is valid
@@ -49,29 +79,6 @@ pub struct TemperaturePrediction {
 #[derive(Debug)]
 pub enum Day {
     Past {
-        /// Mean wind speed at midday
-        ///
-        /// This is the mean speed over the 10 minutes to midday and is measured at 10m
-        /// above ground level.
-        wind_speed: MetresPerSecond,
-        /// Mean wind direction at midday
-        ///
-        /// This is the mean direction over the 10 minutes to midday and is measured at 10m
-        /// above ground level.
-        wind_direction: Degrees,
-        /// Mean wind gust speed at midday
-        ///
-        /// This is the maximum 3-second mean wind speed over the 10 minutes to midday and is
-        /// measured at 10m above ground level.
-        wind_gust_speed: MetresPerSecond,
-        /// Visibility in metres at midday
-        visibility: Metres,
-        /// Relative humidity at midday
-        ///
-        /// Measured at screen height, about 1.5m above ground level.
-        relative_humidity: Percentage,
-        /// Air pressure at mean sea level at midday
-        pressure: Pascals,
         /// Maximum air temperature
         ///
         /// Measured at screen height, about 1.5m above ground level.
@@ -92,8 +99,14 @@ pub enum Day {
         /// This is the temperature it feels like taking into account humidity and wind chill but
         /// not radiation.
         temperature_feels_like_maximum_lower_bound: Celsius,
-    },
-    Future {
+        /// Relative humidity at midday
+        ///
+        /// Measured at screen height, about 1.5m above ground level.
+        relative_humidity: Percentage,
+        /// Air pressure at mean sea level at midday
+        pressure: Pascals,
+        /// Visibility in metres at midday
+        visibility: Metres,
         /// Mean wind speed at midday
         ///
         /// This is the mean speed over the 10 minutes to midday and is measured at 10m
@@ -109,16 +122,8 @@ pub enum Day {
         /// This is the maximum 3-second mean wind speed over the 10 minutes to midday and is
         /// measured at 10m above ground level.
         wind_gust_speed: MetresPerSecond,
-        /// Visibility in metres at midday
-        visibility: Metres,
-        /// Relative humidity at midday
-        ///
-        /// Measured at screen height, about 1.5m above ground level.
-        relative_humidity: Percentage,
-        /// Air pressure at mean sea level at midday
-        pressure: Pascals,
-        /// Maximum UV index
-        uv_index_maximum: UvIndex,
+    },
+    Future {
         /// The most significant weather conditions
         conditions: Conditions,
         /// Maximum air temperature
@@ -129,6 +134,10 @@ pub enum Day {
         ///
         /// This takes into account humidity and wind chill but not radiation.
         temperature_feels_like_maximum: TemperaturePrediction,
+        /// Relative humidity at midday
+        ///
+        /// Measured at screen height, about 1.5m above ground level.
+        relative_humidity: Percentage,
         /// Probability of any precipitation
         precipitation_probability: Percentage,
         /// Probability of rain
@@ -148,6 +157,27 @@ pub enum Day {
         hail_probability: Percentage,
         /// Probability of lightning
         lightning_probability: Percentage,
+        /// Air pressure at mean sea level at midday
+        pressure: Pascals,
+        /// Maximum UV index
+        uv_index_maximum: UvIndex,
+        /// Visibility in metres at midday
+        visibility: Metres,
+        /// Mean wind speed at midday
+        ///
+        /// This is the mean speed over the 10 minutes to midday and is measured at 10m
+        /// above ground level.
+        wind_speed: MetresPerSecond,
+        /// Mean wind direction at midday
+        ///
+        /// This is the mean direction over the 10 minutes to midday and is measured at 10m
+        /// above ground level.
+        wind_direction: Degrees,
+        /// Mean wind gust speed at midday
+        ///
+        /// This is the maximum 3-second mean wind speed over the 10 minutes to midday and is
+        /// measured at 10m above ground level.
+        wind_gust_speed: MetresPerSecond,
     },
 }
 
@@ -159,29 +189,6 @@ pub enum Day {
 /// timezone, all others are "during the night", from dusk to dawn.
 #[derive(Debug)]
 pub struct Night {
-    /// Mean wind speed at midnight
-    ///
-    /// This is the mean speed over the 10 minutes to midnight and is measured at 10m
-    /// above ground level.
-    pub wind_speed: MetresPerSecond,
-    /// Mean wind direction at midnight
-    ///
-    /// This is the mean direction over the 10 minutes to midnight and is measured at 10m
-    /// above ground level.
-    pub wind_direction: Degrees,
-    /// Mean wind gust speed at midnight
-    ///
-    /// This is the maximum 3-second mean wind speed over the 10 minutes to midnight and is
-    /// measured at 10m above ground level.
-    pub wind_gust_speed: MetresPerSecond,
-    /// Visibility in metres at midnight
-    pub visibility: Metres,
-    /// Relative humidity at midnight
-    ///
-    /// Measured at screen height, about 1.5m above ground level.
-    pub relative_humidity: Percentage,
-    /// Air pressure at mean sea level at midnight
-    pub pressure: Pascals,
     /// The most significant weather conditions
     pub conditions: Conditions,
     /// Minimum air temperature
@@ -193,6 +200,10 @@ pub struct Night {
     /// This is the temperature it feels like taking into account humidity and wind chill but
     /// not radiation.
     pub temperature_feels_like_minimum: TemperaturePrediction,
+    /// Relative humidity at midnight
+    ///
+    /// Measured at screen height, about 1.5m above ground level.
+    pub relative_humidity: Percentage,
     /// Probability of any precipitation
     pub precipitation_probability: Percentage,
     /// Probability of rain
@@ -212,6 +223,25 @@ pub struct Night {
     pub hail_probability: Percentage,
     /// Probability of lightning
     pub lightning_probability: Percentage,
+    /// Air pressure at mean sea level at midnight
+    pub pressure: Pascals,
+    /// Visibility in metres at midnight
+    pub visibility: Metres,
+    /// Mean wind speed at midnight
+    ///
+    /// This is the mean speed over the 10 minutes to midnight and is measured at 10m
+    /// above ground level.
+    pub wind_speed: MetresPerSecond,
+    /// Mean wind direction at midnight
+    ///
+    /// This is the mean direction over the 10 minutes to midnight and is measured at 10m
+    /// above ground level.
+    pub wind_direction: Degrees,
+    /// Mean wind gust speed at midnight
+    ///
+    /// This is the maximum 3-second mean wind speed over the 10 minutes to midnight and is
+    /// measured at 10m above ground level.
+    pub wind_gust_speed: MetresPerSecond,
 }
 
 impl TryFrom<RawDailyForecast> for Daily {
