@@ -5,6 +5,8 @@ edition = "2024"
 description = "Rust bindings to the Met Office Global Spot site-specific weather API"
 repository = "https://github.com/robjwells/rjw-metoffice"
 license = "MIT or Apache-2.0"
+categories = ["api-bindings", "no-std"]
+keywords = ["weather", "weather-api", "meteorological", "met-office"]
 
 [dependencies]
 jiff = { version = "0.2.15" }
